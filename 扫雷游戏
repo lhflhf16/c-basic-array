@@ -1,0 +1,199 @@
+//test.c
+
+#define _CRT_SECURE_NO_WARNINGS 1
+
+#include"game2.h"
+
+void menu()
+{
+	printf("****************************\n");
+	printf("****       1.play       ****\n");
+	printf("****       0.exit       ****\n");
+	printf("****************************\n");
+}
+
+void game2()
+{
+	//储存雷的信息
+	char mine[ROWS][COLS] = { 0 };
+	//展示给玩家的信息
+	char show[ROWS][COLS] = { 0 };
+	//初始化
+	InitBoard(mine, ROWS, COLS, '0');
+	InitBoard(show, ROWS, COLS, '*');
+	//打印
+	Display(mine, ROW, COL);
+	Display(show, ROW, COL);
+	//放置雷
+	SetMine(mine, ROW, COL);
+	//扫雷
+	FindMine(mine, show, ROW, COL);
+}
+
+void test()
+{
+	srand((unsigned int)time(NULL));
+	int input = 0;
+	do
+	{
+		menu();
+		printf("请输入1/0选择：>");
+		scanf("%d", &input);
+		switch (input)
+		{
+		case 1:
+			game2();
+			break;
+		case 0:
+			printf("退出游戏\n");
+			break;
+		default:
+			printf("输入非法，请重新输入\n");
+			break;
+		}
+	} while (input);
+}
+
+int main()
+{
+	test();
+	return 0;
+}
+
+//test.c
+
+//game2.c
+
+#define _CRT_SECURE_NO_WARNINGS 1
+
+#include"game2.h"
+
+//初始化
+void InitBoard(char board[ROWS][COLS], int rows, int cols, char set)
+{
+	int i = 0;
+	int j = 0;
+	for (i = 0; i < rows; i++)
+	{
+		for (j = 0; j < cols; j++)
+		{
+			board[i][j] = set;
+		}
+	}
+}
+
+//打印
+void Display(char board[ROWS][COLS], int row, int col)
+{
+	int i = 0;
+	int j = 0;
+	//列号
+	for (i = 0; i <=row; i++)
+	{
+		printf(" %d ", i);
+	}
+	printf("\n");
+
+	for (i = 1; i <= row; i++)
+	{
+		//行号
+		printf(" %d ", i);
+		for (j = 1; j <= col; j++)
+		{
+			printf(" %c ", board[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+//放置雷
+void SetMine(char board[ROWS][COLS], int row, int col)
+{
+	int i = 0;
+	while (i<nummine)
+	{
+		int x = rand() % 9 + 1;
+		int y = rand() % 9 + 1;
+		if (board[x][y] == '0')
+		{
+			board[x][y] = '1';
+			i++;
+		}
+	}
+	Display(board, row, col);
+}
+
+//获取坐标周围雷数
+int get_mine_count(char mine[ROWS][COLS], int x, int y)
+{
+	return mine[x - 1][y] +
+		mine[x + 1][y] +
+		mine[x - 1][y - 1] +
+		mine[x][y - 1] +
+		mine[x + 1][y - 1] +
+		mine[x - 1][y + 1] +
+		mine[x][y + 1] +
+		mine[x + 1][y + 1] - 8 * '0';
+}
+
+//扫雷
+void FindMine(char mine[ROWS][COLS], char show[ROWS][COLS], int row, int col)
+{
+	int x = 0;
+	int y = 0;
+	int win = 0;
+	while (win<ROW*COL-nummine)
+	{
+		printf("请输入坐标:>");
+		scanf("%d%d", &x, &y);
+		if (1 <= x && x <= 9 && 1 <= y && y <= 9)
+		{
+			if (mine[x][y] == '1')
+			{
+				printf("很抱歉，你输了\n");
+				Display(mine, ROW, COL);
+				break;
+			}
+			else
+			{
+				//获取坐标周围雷数
+				int ret = get_mine_count(mine, x, y);
+				show[x][y] = ret + '0';
+				Display(show, ROW, COL);
+				win++;
+			}
+		}
+		else
+		{
+			printf("输入非法，请重新输入\n");
+		}
+	}
+	if (win == ROW*COL - nummine)
+	{
+		printf("恭喜你，获胜了\n");
+	}
+}
+
+
+//game2.c
+
+//game2.h
+
+#define ROW 9
+#define COL 9
+
+#define ROWS ROW+2
+#define COLS COL+2
+
+#define nummine 79
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+
+void InitBoard(char board[ROWS][COLS], int rows, int cols, char set);
+void Display(char board[ROWS][COLS], int row, int col);
+void SetMine(char board[ROWS][COLS], int row, int col);
+void FindMine(char mine[ROWS][COLS], char show[ROWS][COLS], int row, int col);
+
+//game2.h
